@@ -4,7 +4,7 @@ Description=Get pypool service running at boot
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/pi/pool_reader/pool.py
+ExecStart=/usr/bin/python3 /home/pi/pipool/pool.py
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
