@@ -1,16 +1,17 @@
 {
-	"name": "pipool",
-	"version": "0.0.1",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"author": "",
-	"license": "ISC",
-	"dependencies": {
-		"axios": "^0.19.0",
-		"express": "^4.17.1",
-		"lodash": "^4.17.11"
-	}
+  "name": "pipool",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Cédric Taschereau",
+  "repository": "https://github.com/ctaschereau/pipool",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "express": "^4.17.1",
+    "lodash": "^4.17.11"
+  }
 }
