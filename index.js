@@ -1,14 +1,13 @@
 const express = require('express')
 const axios = require('axios')
-const fs = require('fs')
+const fs = require('fs-extra')
 
 const app = express()
 const port = 3028
 
 const MINUTE_IN_MS = 60 * 1000;
 const WEEK_IN_MS = 7 * 24 * 60 * MINUTE_IN_MS;
-/////////////////const SAMPLING_INTERVAL = 15 * MINUTE_IN_MS; // in ms
-const SAMPLING_INTERVAL = 1500; // in ms
+const SAMPLING_INTERVAL = 15 * MINUTE_IN_MS; // in ms
 const MAX_SAMPLES = 3 * WEEK_IN_MS / SAMPLING_INTERVAL; // Keep data for the last 3 weeks
 
 const DATA_FILE_PATH = 'public/data.json';
@@ -57,7 +56,7 @@ setInterval(async () => {
 		temperatureData.shift()
 	}
 	
-	await fs.writeFile(DATA_FILE_PATH, temperatureData)
+	await fs.writeFile(DATA_FILE_PATH, JSON.stringify(temperatureData, null, 4))
 }, SAMPLING_INTERVAL);
 
 app.listen(port, () => console.log(`Pool app listening on port ${port}!`))
