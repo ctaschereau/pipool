@@ -1,20 +1,20 @@
 const express = require('express')
 const axios = require('axios')
-const fs = require('fs')
+const fs = require('fs-extra')
 
 const app = express()
 const port = 3028
 
-const SAMPLING_INTERVAL = 15 * 60 * 1000; // in ms
+const MINUTE_IN_MS = 60 * 1000;
+const WEEK_IN_MS = 7 * 24 * 60 * MINUTE_IN_MS;
+const SAMPLING_INTERVAL = 15 * MINUTE_IN_MS; // in ms
+const MAX_SAMPLES = 3 * WEEK_IN_MS / SAMPLING_INTERVAL; // Keep data for the last 3 weeks
+
+const DATA_FILE_PATH = 'public/data.json';
 
 // TODO : Add some error handling everywhere :P
 
 let getTemp = async () => {
-	//TODO : Mega hack
-	//TODO : Mega hack
-	//TODO : Mega hack
-	//TODO : Mega hack
-	return 22;
 	let response = await axios.get('http://192.168.1.140:5000/')
 	return response.data.temp
 }
@@ -35,13 +35,28 @@ app.get('/', (req, res) => {
 })
 
 setInterval(async () => {
-	let temp = await getTemp()
-	// TODO : read public/data.json
-	// TODO : append data in it
-	// TODO : prune data older than 2 weeks
-	// TODO : write file
-	let time = new Date().toISOString()
-	console.log(`${time} : ${temp}°C`)
+	let temperature;
+	try {
+		temperature = await getTemp()
+	} catch (err) {
+		console.error(`Could not get temperature reading because of : ${err.message}`)
+		return;
+	}
+
+	let temperatureData;
+	try {
+		let fileContent = await fs.readFile(DATA_FILE_PATH, 'utf-8')
+		temperatureData = JSON.parse(fileContent)
+	} catch (err) {
+		console.error(`Could not read or parse content of file ${DATA_FILE_PATH}`)
+		temperatureData = []
+	}
+	temperatureData.push([new Date().getTime(), temperature])
+	while (temperatureData.length > MAX_SAMPLES) {
+		temperatureData.shift()
+	}
+	
+	await fs.writeFile(DATA_FILE_PATH, JSON.stringify(temperatureData, null, 4))
 }, SAMPLING_INTERVAL);
 
 app.listen(port, () => console.log(`Pool app listening on port ${port}!`))
