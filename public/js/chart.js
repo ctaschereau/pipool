@@ -1,9 +1,16 @@
 $.getJSON(
 	'/data.json',
 	function (data) {
+		// https://blog.emilecantin.com/web/highcharts/2014/10/26/highcharts-datetime-series.html
+		Highcharts.setOptions({
+			global: {
+				useUTC: false
+			}
+		});
+
 		Highcharts.chart('chart_container', {
-			title: {
-				text: 'Piscine ftw'
+			title:{
+				text:''
 			},
 			xAxis: {
 				type: 'datetime'
