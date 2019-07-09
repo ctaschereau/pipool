@@ -1,5 +1,6 @@
 .idea/
 public/data.json
+config/local.js
 
 # Logs
 logs
