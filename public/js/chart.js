@@ -8,7 +8,7 @@ $.getJSON(
 			}
 		});
 
-		Highcharts.chart('chart_container', {
+		let chartConfig = {
 			title:{
 				text:''
 			},
@@ -27,6 +27,16 @@ $.getJSON(
 				name: 'Pool data',
 				data: data
 			}]
+		};
+
+		Highcharts.chart('chart_container', chartConfig);
+
+		const KELVIN_DIFF = 273.15;
+		chartConfig.yAxis.title.text = '°K';
+		let newData = data.map(d => {
+			return [d[0], d[1] + KELVIN_DIFF];
 		});
+		chartConfig.series[0].data = newData;
+		Highcharts.chart('chart_container2', chartConfig);
 	}
 );

@@ -27,6 +27,13 @@ app.get('/', (req, res) => {
 		});
 });
 
+
+
+// TODO : Add pictures of actual setup. Links to doc. https://thepihut.com/blogs/raspberry-pi-tutorials/18095732-sensors-temperature-with-the-1-wire-interface-and-the-ds18b20
+// https://demos.creative-tim.com/material-kit-react/#/
+// TODO : Highcharts - Allow zooming, holes in data?
+
+
 new cronTemp().start();
 
 app.listen(config.port, () =>  logger.info(`Server running on port : ${config.port}`));
