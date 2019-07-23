@@ -18,7 +18,17 @@ $.getJSON(
 			yAxis: {
 				title: {
 					text: '°C'
-				}
+				},
+				plotLines: [{
+					color: 'red', // Color value
+					value: 22, // Value of where the line will appear
+					width: 2 // Width of the line
+				}]
+			},
+			chart: {
+				zoomType: 'xy',
+				panning: true,
+				panKey: 'shift',
 			},
 			legend: {
 				enabled: false
@@ -31,6 +41,7 @@ $.getJSON(
 
 		Highcharts.chart('chart_container', chartConfig);
 
+		/*
 		const KELVIN_DIFF = 273.15;
 		chartConfig.yAxis.title.text = '°K';
 		let newData = data.map(d => {
@@ -38,5 +49,10 @@ $.getJSON(
 		});
 		chartConfig.series[0].data = newData;
 		Highcharts.chart('chart_container2', chartConfig);
+		*/
 	}
 );
+
+$('#ims_btn').click(() => {
+	$('#ims_test').toggle();
+});

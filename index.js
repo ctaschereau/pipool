@@ -17,6 +17,10 @@ app.get('/', (req, res) => {
 		viewContent = viewContent.replace('"result_container">', `"result_container">La piscine est à ${temp}°C`);
 		res.send(viewContent)
 	};
+	if (process.env.NOT_IN_HOME_NETWORK) {
+		renderPage('N/A');
+		return;
+	}
 	tempUtils.getTemp()
 		.then(temp => {
 			renderPage(temp);
@@ -27,14 +31,14 @@ app.get('/', (req, res) => {
 		});
 });
 
-
-
-// TODO : Add pictures of actual setup. Links to doc. https://thepihut.com/blogs/raspberry-pi-tutorials/18095732-sensors-temperature-with-the-1-wire-interface-and-the-ds18b20
+// TODO : use https -> https://certbot.eff.org/
+// https://pimylifeup.com/raspberry-pi-ssl-lets-encrypt/
 // https://demos.creative-tim.com/material-kit-react/#/
-// TODO : Highcharts - Allow zooming, holes in data?
+// TODO : Highcharts - Allow holes in data?
 
-
-new cronTemp().start();
+if (!process.env.NOT_IN_HOME_NETWORK) {
+	new cronTemp().start();
+}
 
 app.listen(config.port, () =>  logger.info(`Server running on port : ${config.port}`));
 
