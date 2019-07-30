@@ -54,5 +54,6 @@ $.getJSON(
 );
 
 $('#ims_btn').click(() => {
-	$('#ims_test').toggle();
+	let url = $('#imsURL').val();
+	$('#ims_test').html(`<iframe name="my_iframe" title="Inline Frame Example" width="1024" height="780" src="${url}"></iframe>`);
 });
