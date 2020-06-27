@@ -59,5 +59,8 @@ app.use(async (context) => {
 	});
 });
 
-await app.listen({ port: config.port });
+await app.listen({
+	hostname: '0.0.0.0',
+	port: config.port,
+});
 
