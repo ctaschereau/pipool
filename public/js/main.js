@@ -19,7 +19,8 @@ let main = async function() {
 			text: ''
 		},
 		xAxis: {
-			type: 'datetime'
+			type: 'datetime',
+			minRange: 3600000, // one hour
 		},
 		yAxis: {
 			title: {
@@ -27,8 +28,8 @@ let main = async function() {
 			},
 			plotLines: [{
 				color: 'red', // Color value
-				value: 20, // Value of where the line will appear
-				width: 2 // Width of the line
+				value: 20.5, // Value of where the line will appear
+				width: 1 // Width of the line
 			}]
 		},
 		chart: {
@@ -36,29 +37,28 @@ let main = async function() {
 			panning: true,
 			panKey: 'shift',
 		},
+		credits: {
+			enabled: false,
+		},
 		legend: {
-			enabled: false
+			enabled: false,
 		},
 		series: [{
 			name: 'Pool data',
-			data: poolTemp
+			data: poolTemp,
 		}, {
 			name: 'Outside data',
-			data: outsideTemp
+			data: outsideTemp,
+			color: '#b6b7c1',
 		}]
 	};
 
-	Highcharts.chart('chart_container', chartConfig);
+	const chart = Highcharts.chart('chart_container', chartConfig);
 
-	/*
-	const KELVIN_DIFF = 273.15;
-	chartConfig.yAxis.title.text = '°K';
-	let newData = data.map(d => {
-		return [d[0], d[1] + KELVIN_DIFF];
-	});
-	chartConfig.series[0].data = newData;
-	Highcharts.chart('chart_container2', chartConfig);
-	*/
+	const dateOffset = (24 * 60 * 60 * 1000) * 6; // nb of days
+	let myDate = new Date();
+	myDate.setTime(myDate.getTime() - dateOffset);
+	chart.xAxis[0].setExtremes(myDate.getTime(), new Date().getTime());
 };
 main().then(() => {
 	console.log('all done');
