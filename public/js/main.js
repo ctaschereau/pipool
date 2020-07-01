@@ -20,7 +20,6 @@ let main = async function() {
 		},
 		xAxis: {
 			type: 'datetime',
-			minRange: 3600000, // one hour
 		},
 		yAxis: {
 			title: {
@@ -55,6 +54,7 @@ let main = async function() {
 
 	const chart = Highcharts.chart('chart_container', chartConfig);
 
+	// Default zoom
 	const dateOffset = (24 * 60 * 60 * 1000) * 6; // nb of days
 	let myDate = new Date();
 	myDate.setTime(myDate.getTime() - dateOffset);
