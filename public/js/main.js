@@ -54,11 +54,13 @@ let main = async function() {
 
 	const chart = Highcharts.chart('chart_container', chartConfig);
 
+	/*
 	// Default zoom
 	const dateOffset = (24 * 60 * 60 * 1000) * 6; // nb of days
 	let myDate = new Date();
 	myDate.setTime(myDate.getTime() - dateOffset);
 	chart.xAxis[0].setExtremes(myDate.getTime(), new Date().getTime());
+	*/
 };
 main().then(() => {
 	console.log('all done');
