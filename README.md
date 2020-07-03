@@ -9,3 +9,4 @@ Simple projet to display the temperature of my pool using 2 raspberry pies
 - Auto-archive/delete old data ? (maybe)
 - Manage the fact that the _local.ts_ file could not be there
 - Better logging (use nice datetime format)
+- Ne pas crasher si je ne suis pas capable de lire la température du gouvernement :P 
