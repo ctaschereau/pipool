@@ -1,3 +1,4 @@
+/*
 import config from './config/config.ts';
 import { isBefore } from 'https://deno.land/x/date_fns/index.js';
 
@@ -15,3 +16,4 @@ const cleanupFn = async (dataFilePath: string):Promise<void> => {
 
 await cleanupFn(config.dataOutsideFilePath);
 await cleanupFn(config.dataPoolFilePath);
+*/
