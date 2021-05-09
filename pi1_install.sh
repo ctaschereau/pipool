@@ -10,6 +10,9 @@ StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=pypool
 User=pi
+
+[Install]
+WantedBy=multi-user.target
 " > /etc/systemd/system/pipypool.service
 
 systemctl enable pipypool.service
