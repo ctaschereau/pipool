@@ -1,46 +1,57 @@
 import config from '../config/config.ts';
-import { cron } from 'https://deno.land/x/deno_cron@v1.0.0/cron.ts';
+import { cron, MongoClient } from './deps.ts';
 
 import logger from './basicLogger.ts';
 import tempUtils from './tempUtils.ts';
 
+const client = new MongoClient();
+await client.connect(`mongodb://${config.mongoHost}:${config.mongoPort}`);
+
+interface TempSchema {
+    _id: { $oid: string };
+    date: Date;
+    temperature: Number;
+}
+
+const db = client.database('pipool');
+const poolTemperatureReadings = db.collection<TempSchema>('poolTemp');
+const outsideTemperatureReadings = db.collection<TempSchema>('outsideTemp');
+
+
 const getAndWriteNewPoolTemperatureSample = async function():Promise<void> {
-    await _getAndWriteNewTemperatureSample(config.dataPoolFilePath, false);
+    await _getAndWriteNewTemperatureSample(false);
 };
 
 const getAndWriteNewOutsideTemperatureSample = async function():Promise<void> {
-    await _getAndWriteNewTemperatureSample(config.dataOutsideFilePath, true);
+    await _getAndWriteNewTemperatureSample(true);
 };
 
-const _getAndWriteNewTemperatureSample = async function(dataFilePath: string, forOutside: boolean):Promise<void> {
+const _getAndWriteNewTemperatureSample = async function(forOutside: boolean):Promise<void> {
     //logger.debug('getAndWriteNewTemperatureSample start');
-    let newTempReading;
+    let newTempReading, collection;
     try {
         if (forOutside) {
             newTempReading = await tempUtils.getOutsideTemp();
+            collection = outsideTemperatureReadings;
         } else {
             newTempReading = await tempUtils.getPoolTemp();
+            collection = poolTemperatureReadings;
         }
     } catch (err) {
         logger.error(`Could not get temperature reading because of : ${err.message}`);
         return;
     }
 
-    let temperatureData = [];
     try {
-        let fileContent = await Deno.readTextFile(dataFilePath);
-        temperatureData = JSON.parse(fileContent);
+        await collection.insertOne({
+            date: new Date(),
+            temperature: newTempReading,
+        });
     } catch (err) {
-        if (err.name === Deno.errors.NotFound.name) {
-            await Deno.create(dataFilePath);
-        } else {
-            logger.error(`Could not read or parse content of file because of ${err.message}`);
-            return;
-        }
+        logger.error(`Could not write new temperature reading because of : ${err.message}`);
+        return;
     }
-    temperatureData.push([new Date().getTime(), newTempReading]);
 
-    await Deno.writeTextFile(dataFilePath, JSON.stringify(temperatureData, null, 4));
     //logger.debug(`Just logged this temp : ${temperature1}`);
 };
 

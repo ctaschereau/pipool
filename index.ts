@@ -1,8 +1,9 @@
-import { Application, Router , send, isHttpError } from 'https://deno.land/x/oak/mod.ts';
+import { Application, Router , send, isHttpError } from './src/deps.ts';
 
 import config from './config/config.ts';
 import logger from './src/basicLogger.ts';
 import { start as startCron } from './src/cronTemp.ts';
+import initPoolAPI from './src/poolAPI.ts';
 
 startCron();
 
@@ -28,8 +29,6 @@ app.addEventListener("listen", ({ hostname, port, secure }) => {
 	logger.info(`Listening on: ${secure ? "https://" : "http://"}${hostname ?? "localhost"}:${port}`);
 });
 
-
-
 // Error handler
 app.use(async (context, next) => {
 	try {
@@ -51,13 +50,7 @@ app.use(async (context, next) => {
 	}
 });
 
-// Static resources
-app.use(async (context) => {
-	await send(context, context.request.url.pathname, {
-		root: `${Deno.cwd()}/public`,
-		index: 'index.html'
-	});
-});
+initPoolAPI(app);
 
 await app.listen({
 	hostname: '0.0.0.0',

@@ -1,7 +1,7 @@
 let main = async function() {
-	const poolTempReponse = await fetch('/poolTemp.json');
-	const poolTemp = await poolTempReponse.json();
-	const outsideTempResponse = await fetch('/outsideTemp.json');
+	const poolTempResponse = await fetch('/data/pool');
+	const poolTemp = await poolTempResponse.json();
+	const outsideTempResponse = await fetch('/data/outside');
 	const outsideTemp = await outsideTempResponse.json();
 
 	let el = document.getElementById('result_container');

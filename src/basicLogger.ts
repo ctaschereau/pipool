@@ -1,4 +1,4 @@
-import * as log from "https://deno.land/std@0.55.0/log/mod.ts";
+import * as log from "https://deno.land/std@0.95.0/log/mod.ts";
 
 await log.setup({
 	handlers: {
