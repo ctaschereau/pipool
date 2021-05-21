@@ -27,7 +27,7 @@ let main = async function() {
 			},
 			plotLines: [{
 				color: 'red', // Color value
-				value: 20.5, // Value of where the line will appear
+				value: 23, // Value of where the line will appear
 				width: 1 // Width of the line
 			}]
 		},
