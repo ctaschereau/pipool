@@ -1,4 +1,4 @@
-import {Application, MongoClient, Router, send, subDays} from './deps.ts';
+import {Application, MongoClient, Router, helpers, send, subHours} from './deps.ts';
 
 import config from '../config/config.ts';
 
@@ -8,25 +8,37 @@ await client.connect(`mongodb://${config.mongoHost}:${config.mongoPort}`);
 interface TempSchema {
     _id: { $oid: string };
     date: Date;
-    temperature: Number;
+    temperature: number;
 }
 
 const db = client.database('pipool');
 const poolTemperatureReadings = db.collection<TempSchema>('poolTemp');
 const outsideTemperatureReadings = db.collection<TempSchema>('outsideTemp');
 
+const getFilter = (context: any): any => {
+	const qs = helpers.getQuery(context);
+	const rangeToDisplay = qs.rangeToDisplay || '3days';
+	let filter;
+	if (rangeToDisplay.includes('hours')) {
+		filter = {date: {$gte: subHours(new Date(), Number(rangeToDisplay.replace('hours', '')))}};
+	} else if (rangeToDisplay.includes('days')) {
+		filter = {date: {$gte: subHours(new Date(), Number(rangeToDisplay.replace('days', '')) * 24)}};
+	} else {
+		filter = {}
+	}
+	return filter;
+}
+
 const router = new Router();
 router
     .get("/data/outside", async (context) => {
-        const filter = {date: {$gte: subDays(new Date(), config.maxDaysForSamples)}};
-        const data = await outsideTemperatureReadings.find(filter).toArray();
+        const data = await outsideTemperatureReadings.find(getFilter(context)).toArray();
         context.response.body = data.map(x => {
             return [x.date.getTime(), x.temperature];
         });
     })
     .get("/data/pool", async (context) => {
-        const filter = {date: {$gte: subDays(new Date(), config.maxDaysForSamples)}};
-        const data = await poolTemperatureReadings.find(filter).toArray();
+        const data = await poolTemperatureReadings.find(getFilter(context)).toArray();
         context.response.body = data.map(x => {
             return [x.date.getTime(), x.temperature];
         });

@@ -1,10 +1,14 @@
-let main = async function() {
-	const poolTempResponse = await fetch('/data/pool');
+let getTemp = async function(rangeToDisplay) {
+	let endOfURL = '';
+	if (rangeToDisplay) {
+		endOfURL = '?rangeToDisplay=' + rangeToDisplay;
+	}
+	const poolTempResponse = await fetch('/data/pool' + endOfURL);
 	const poolTemp = await poolTempResponse.json();
-	const outsideTempResponse = await fetch('/data/outside');
+	const outsideTempResponse = await fetch('/data/outside' + endOfURL);
 	const outsideTemp = await outsideTempResponse.json();
 
-	let el = document.getElementById('result_container');
+	const el = document.getElementById('result_container');
 	el.innerText = `Température maintenant : ${poolTemp[poolTemp.length - 1][1]}`
 
 	// https://blog.emilecantin.com/web/highcharts/2014/10/26/highcharts-datetime-series.html
@@ -14,7 +18,7 @@ let main = async function() {
 		}
 	});
 
-	let chartConfig = {
+	const chartConfig = {
 		title: {
 			text: ''
 		},
@@ -62,6 +66,15 @@ let main = async function() {
 	chart.xAxis[0].setExtremes(myDate.getTime(), new Date().getTime());
 	*/
 };
-main().then(() => {
+getTemp().then(() => {
 	console.log('all done');
 }).catch(console.error);
+
+const radios = document.getElementsByName('range_to_display');
+for(radio in radios) {
+    radios[radio].onclick = function() {
+		getTemp(this.value).then(() => {
+			console.log('all done');
+		}).catch(console.error);
+    }
+}
