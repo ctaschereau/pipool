@@ -1,4 +1,4 @@
-let getTemp = async function(rangeToDisplay) {
+const getTemp = async function(rangeToDisplay) {
 	let endOfURL = '';
 	if (rangeToDisplay) {
 		endOfURL = '?rangeToDisplay=' + rangeToDisplay;
@@ -56,7 +56,7 @@ let getTemp = async function(rangeToDisplay) {
 		}]
 	};
 
-	const chart = Highcharts.chart('chart_container', chartConfig);
+	Highcharts.chart('chart_container', chartConfig);
 
 	/*
 	// Default zoom

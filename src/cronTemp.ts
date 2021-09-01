@@ -10,7 +10,7 @@ await client.connect(`mongodb://${config.mongoHost}:${config.mongoPort}`);
 interface TempSchema {
     _id: { $oid: string };
     date: Date;
-    temperature: Number;
+    temperature: number;
 }
 
 const db = client.database('pipool');
@@ -55,7 +55,7 @@ const _getAndWriteNewTemperatureSample = async function(forOutside: boolean):Pro
     //logger.debug(`Just logged this temp : ${temperature1}`);
 };
 
-export let start = () => {
+export const start = () => {
     cron(config.samplingIntervalCron, async () => {
         await getAndWriteNewPoolTemperatureSample();
         await getAndWriteNewOutsideTemperatureSample();

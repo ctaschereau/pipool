@@ -1,13 +1,13 @@
 import config from '../config/config.ts';
 
 export default class TempUtils {
-	static async getPoolTemp(): Promise<Number> {
+	static async getPoolTemp(): Promise<number> {
 		const response = await fetch(config.tempServerUrl);
 		const data = await response.json();
 		return data.temp;
 	}
 
-	static async getOutsideTemp(): Promise<Number> {
+	static async getOutsideTemp(): Promise<number> {
 		const response = await fetch(`https://weather.gc.ca/rss/city/${config.cityIDForWeatherService}_e.xml`);
 		const junkRssFeed = await response.text();
 		const regex = /<b>Temperature:<\/b>\s*(\d*\.?\d*)&deg;[cfCF]/;

@@ -1,4 +1,4 @@
-import { Application, Router , send, isHttpError } from './src/deps.ts';
+import { Application, isHttpError } from './src/deps.ts';
 
 import config from './config/config.ts';
 import logger from './src/basicLogger.ts';
