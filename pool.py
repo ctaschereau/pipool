@@ -2,8 +2,8 @@
 import os
 import glob
 import time
-from flask import Flask
-from flask import jsonify
+from flask import Flask, jsonify
+import configparser
 
 
 # Initialize the GPIO Pins
@@ -14,6 +14,13 @@ os.system('modprobe w1-therm') # Turns on the Temperature module
 base_dir = '/sys/bus/w1/devices/'
 device_folder = glob.glob(base_dir + '28*')[0]
 device_file = device_folder + '/w1_slave'
+
+# Read the config file
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+# Get the Celsius offset from the config file
+offset = config.getfloat('Temperature', 'Offset')
 
 # A function that reads the sensors data
 def read_temp_raw():
@@ -43,7 +50,7 @@ def read_temp():
   if equals_pos != -1:
     temp_string = lines[1][equals_pos+2:]
     temp_c = float(temp_string) / 1000.0
-    return temp_c
+    return temp_c + offset  # Apply the offset
 
 
 app = Flask(__name__)
