@@ -52,7 +52,7 @@ const _getAndWriteNewTemperatureSample = async function(forOutside: boolean):Pro
         return;
     }
 
-    //logger.debug(`Just logged this temp : ${temperature1}`);
+    //logger.debug(`Just logged this temp : ${newTempReading}`);
 };
 
 export const start = () => {

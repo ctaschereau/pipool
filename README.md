@@ -14,10 +14,27 @@ Simple projet to display the temperature of a pool using one/two raspberry pi(es
 - Step 3 is left up to the reader to figure out
 - Steps 4 & 5 are done by running this :
 `deno run --allow-net --allow-write --allow-read --allow-plugin --unstable index.ts`
+  or by setuping a service like this (for systemd) (in a file like /etc/systemd/system/pipool.service) : 
+  ```
+    [Unit]
+    Description="PiPool"
+  
+    [Service]
+    ExecStart=/home/pi/.cargo/bin/deno run --allow-net --allow-write --allow-read index.ts
+    WorkingDirectory=/home/pi/pipool
+    Restart=always
+    RestartSec=10
+    StandardOutput=syslog
+    StandardError=syslog
+    SyslogIdentifier=Deno
+    User=pi
+
+    [Install]
+    WantedBy=multi-user.target```
 
 ## Todos
 - Add script to create and manage service for Deno webserver
 - Use a real way of templating stuff for the client-side (ex: Vue.js or React.js)
-- Use w nice client-side lib
+- Use a nice client-side lib
 - Manage the fact that the _local.ts_ file could not be there
 - Better logging (use nice datetime format) 
