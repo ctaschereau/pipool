@@ -1,21 +1,12 @@
-import config from '../config/config.ts';
-import { cron, MongoClient } from './deps.ts';
+import config from 'config';
+import fs from 'fs';
+import { CronJob } from 'cron';
 
 import logger from './basicLogger.ts';
 import tempUtils from './tempUtils.ts';
 
-const client = new MongoClient();
-await client.connect(`mongodb://${config.mongoHost}:${config.mongoPort}`);
-
-interface TempSchema {
-    _id: { $oid: string };
-    date: Date;
-    temperature: number;
-}
-
-const db = client.database('pipool');
-const poolTemperatureReadings = db.collection<TempSchema>('poolTemp');
-const outsideTemperatureReadings = db.collection<TempSchema>('outsideTemp');
+const poolTemperatureReadingsFile = `poolTemp_${new Date().getFullYear()}.csv`;
+const outsideTemperatureReadingsFile = `outsideTemp_${new Date().getFullYear()}.csv`;
 
 
 const getAndWriteNewPoolTemperatureSample = async function():Promise<void> {
@@ -27,15 +18,15 @@ const getAndWriteNewOutsideTemperatureSample = async function():Promise<void> {
 };
 
 const _getAndWriteNewTemperatureSample = async function(forOutside: boolean):Promise<void> {
-    //logger.debug('getAndWriteNewTemperatureSample start');
-    let newTempReading, collection;
+    logger.debug('getAndWriteNewTemperatureSample start');
+    let newTempReading, csvFile;
     try {
         if (forOutside) {
             newTempReading = await tempUtils.getOutsideTemp();
-            collection = outsideTemperatureReadings;
+            csvFile = outsideTemperatureReadingsFile;
         } else {
             newTempReading = await tempUtils.getPoolTemp();
-            collection = poolTemperatureReadings;
+            csvFile = poolTemperatureReadingsFile;
         }
     } catch (err) {
         logger.error(`Could not get temperature reading because of : ${err.message}`);
@@ -43,22 +34,24 @@ const _getAndWriteNewTemperatureSample = async function(forOutside: boolean):Pro
     }
 
     try {
-        await collection.insertOne({
-            date: new Date(),
-            temperature: newTempReading,
-        });
+        await fs.promises.appendFile(csvFile, `${new Date().getTime()},${newTempReading}\n`);
     } catch (err) {
         logger.error(`Could not write new temperature reading because of : ${err.message}`);
         return;
     }
 
-    //logger.debug(`Just logged this temp : ${newTempReading}`);
+    logger.debug(`Just logged this temp : ${newTempReading}`);
 };
 
 export const start = () => {
-    cron(config.samplingIntervalCron, async () => {
-        await getAndWriteNewPoolTemperatureSample();
-        await getAndWriteNewOutsideTemperatureSample();
-    });
+    new CronJob(
+        config.samplingIntervalCron,
+        async () => {
+            await getAndWriteNewPoolTemperatureSample();
+            await getAndWriteNewOutsideTemperatureSample();
+        },
+        null,
+        true,
+    );
 }
 

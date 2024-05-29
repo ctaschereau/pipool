@@ -8,8 +8,14 @@ const getTemp = async function(rangeToDisplay) {
 	const outsideTempResponse = await fetch('/data/outside' + endOfURL);
 	const outsideTemp = await outsideTempResponse.json();
 
+	const dateInMyFormat = new Date().toLocaleDateString('fr-CA', {
+		month: 'long',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	});
 	const el = document.getElementById('result_container');
-	el.innerText = `Température maintenant : ${poolTemp[poolTemp.length - 1][1]}`
+	el.innerText = `Température en date du ${dateInMyFormat} : ${poolTemp[poolTemp.length - 1][1]} °C`;
 
 	// https://blog.emilecantin.com/web/highcharts/2014/10/26/highcharts-datetime-series.html
 	Highcharts.setOptions({

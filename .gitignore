@@ -1,7 +1,7 @@
 .idea/
 public/poolTemp.json
 public/outsideTemp.json
-config/local.ts
+config/local.json
 
 # Logs
 logs

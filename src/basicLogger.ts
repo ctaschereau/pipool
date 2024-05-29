@@ -1,27 +1,24 @@
-import * as log from "https://deno.land/std@0.95.0/log/mod.ts";
+import winston from "winston";
 
+/*
 const myFormatter = (logRecord: any) => {
 	return `${logRecord.datetime.toISOString()} [${logRecord.levelName}] - ${logRecord.msg}`;
 };
+*/
 
-await log.setup({
-	handlers: {
-		console: new log.handlers.ConsoleHandler("DEBUG", {
-			formatter: myFormatter,
+const logger = winston.createLogger({
+	level: 'info',
+	format: winston.format.combine(
+		winston.format.timestamp({
+			format: 'YYYY-MM-DD HH:mm:ss'
 		}),
-		file: new log.handlers.FileHandler("DEBUG", {
-			filename: "./log.txt",
-			formatter: myFormatter,
-		}),
-	},
-
-	loggers: {
-		default: {
-			level: "DEBUG",
-			handlers: ["console", "file"],
-		},
-	},
+		winston.format.printf(info => `${info.timestamp} [${info.level}] : ${info.message}`+(info.splat!==undefined?`${info.splat}`:" "))
+	),
+	// defaultMeta: { service: 'user-service' },
+	transports: [
+		new winston.transports.File({ filename: 'pipool.log' }),
+		new winston.transports.Console({}),
+	],
 });
 
-const logger = log.getLogger();
 export default logger;

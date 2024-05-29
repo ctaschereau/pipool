@@ -1,4 +1,4 @@
-import config from '../config/config.ts';
+import config from 'config';
 
 export default class TempUtils {
 	static async getPoolTemp(): Promise<number> {
@@ -18,4 +18,3 @@ export default class TempUtils {
 		throw new Error('No temp today!');
 	}
 }
-
