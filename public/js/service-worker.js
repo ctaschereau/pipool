@@ -4,7 +4,25 @@ self.addEventListener('sync', event => {
 	}
 });
 
+function wasNotificationShownToday() {
+	const lastNotificationTime = localStorage.getItem('lastNotificationTime');
+	if (!lastNotificationTime) return false;
+
+	const lastDate = new Date(parseInt(lastNotificationTime, 10));
+	const today = new Date();
+
+	return lastDate.toDateString() === today.toDateString();
+}
+
+function updateLastNotificationTime() {
+	const now = new Date().getTime();
+	localStorage.setItem('lastNotificationTime', now.toString());
+}
+
 async function syncDataAndNotify() {
+	// TODO : ...
+	if (false && wasNotificationShownToday()) return;
+
 	const poolTempResponse = await fetch('/data/pool');
 	const poolTemp = await poolTempResponse.json();
 	const poolTempNow = poolTemp[poolTemp.length - 1][1];
@@ -21,11 +39,13 @@ async function showNotification(poolTempNow) {
 
 	const options = {
 		body: `La piscine est à ${poolTempNow}`,
-		// icon: '/path/to/icon.png', // Optional
+		icon: '/img/favicon.ico',
 		// badge: '/path/to/badge.png', // Optional
 	};
 
-	await self.registration.showNotification('Threshold Exceeded!', options);
+	updateLastNotificationTime();
+
+	await self.registration.showNotification('PiPool', options);
 }
 
 self.addEventListener('notificationclick', event => {

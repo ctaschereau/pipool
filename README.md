@@ -20,13 +20,13 @@ Simple projet to display the temperature of a pool using one/two raspberry pi(es
     Description="PiPool"
   
     [Service]
-    ExecStart=/home/pi/.cargo/bin/deno run --allow-net --allow-write --allow-read index.ts
+    ExecStart=bun index.ts
     WorkingDirectory=/home/pi/pipool
     Restart=always
     RestartSec=10
     StandardOutput=syslog
     StandardError=syslog
-    SyslogIdentifier=Deno
+    SyslogIdentifier=pipool
     User=pi
 
     [Install]

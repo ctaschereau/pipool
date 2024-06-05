@@ -15,6 +15,8 @@ const getFilter = (context: RouterContext): Document => {
 		filter = {date: {$gte: subHours(new Date(), Number(rangeToDisplay.replace('days', '')) * 24)}};
 	} else {
 		filter = {}
+
+		filter = {date: {$gte: subHours(new Date(), 2 * 30 * 24)}} ????
 	}
 	return filter;
 };
