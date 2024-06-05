@@ -3,6 +3,8 @@ public/poolTemp.json
 public/outsideTemp.json
 config/local.json
 
+*.csv
+
 # Logs
 logs
 *.log

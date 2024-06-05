@@ -7,6 +7,7 @@ const getTemp = async function(rangeToDisplay) {
 	const poolTemp = await poolTempResponse.json();
 	const outsideTempResponse = await fetch('/data/outside' + endOfURL);
 	const outsideTemp = await outsideTempResponse.json();
+	const poolTempNow = poolTemp[poolTemp.length - 1][1];
 
 	const dateInMyFormat = new Date().toLocaleDateString('fr-CA', {
 		month: 'long',
@@ -15,7 +16,7 @@ const getTemp = async function(rangeToDisplay) {
 		minute: '2-digit',
 	});
 	const el = document.getElementById('result_container');
-	el.innerText = `Température en date du ${dateInMyFormat} : ${poolTemp[poolTemp.length - 1][1]} °C`;
+	el.innerText = `Température en date du ${dateInMyFormat} : ${poolTempNow} °C`;
 
 	// https://blog.emilecantin.com/web/highcharts/2014/10/26/highcharts-datetime-series.html
 	Highcharts.setOptions({
@@ -72,9 +73,10 @@ const getTemp = async function(rangeToDisplay) {
 	chart.xAxis[0].setExtremes(myDate.getTime(), new Date().getTime());
 	*/
 };
-getTemp().then(() => {
-	console.log('all done');
-}).catch(console.error);
+getTemp().then(() => {}).catch(console.error);
+setInterval(() => {
+	getTemp().then(() => {}).catch(console.error);
+}, 60 * 1000);
 
 const radios = document.getElementsByName('range_to_display');
 for(radio in radios) {
