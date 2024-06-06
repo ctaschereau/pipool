@@ -57,9 +57,9 @@ async function updateLastNotificationTime() {
 }
 
 async function syncDataAndNotify() {
-	const poolTempResponse = await fetch('/data/pool');
+	const poolTempResponse = await fetch('/data/pool?rangeToDisplay=4hours');
 	const poolTemp = await poolTempResponse.json();
-	const poolTempNow = poolTemp[poolTemp.length - 1][1];
+	const poolTempNow = poolTemp[poolTemp.length - 1].temp;
 
 	const threshold = 22;
 
