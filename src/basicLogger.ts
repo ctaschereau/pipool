@@ -12,7 +12,7 @@ const logger = winston.createLogger({
 		winston.format.timestamp({
 			format: 'YYYY-MM-DD HH:mm:ss'
 		}),
-		winston.format.printf(info => `${info.timestamp} [${info.level}] : ${info.message}`+(info.splat!==undefined?`${info.splat}`:" "))
+		winston.format.printf(info => `${info["timestamp"]} [${info.level}] : ${info.message}`+(info["splat"]!==undefined?`${info["splat"]}`:" "))
 	),
 	// defaultMeta: { service: 'user-service' },
 	transports: [

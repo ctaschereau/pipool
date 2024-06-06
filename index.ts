@@ -1,5 +1,5 @@
 import config from 'config';
-import express from 'express';
+import express, {type Request, type Response} from 'express';
 import logger from './src/basicLogger.ts';
 import { start as startCron } from './src/cronTemp.ts';
 import initPoolAPI from './src/poolAPI.ts';
@@ -10,7 +10,7 @@ const app = express();
 
 initPoolAPI(app);
 
-app.use((err, req, res, next) => {
+app.use((err: any, _req: Request, res: Response, _next: Function) => {
 	const { message, status, stack } = err;
 	console.error(err.stack);
 
@@ -19,7 +19,10 @@ app.use((err, req, res, next) => {
 	res.json({ message: "Internal Server Error : " + message, status, stack })
 });
 
-app.listen(config.port, () => {
+// @ts-ignore
+const port: number = config.port;
+
+app.listen(port, () => {
 	// logger.info(`Listening on: ${secure ? "https://" : "http://"}${hostname ?? "localhost"}:${port}`);
-	logger.info(`Listening on: http://localhost:${config.port}`);
+	logger.info(`Listening on: http://localhost:${port}`);
 })

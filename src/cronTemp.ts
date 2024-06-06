@@ -28,14 +28,14 @@ const _getAndWriteNewTemperatureSample = async function(forOutside: boolean):Pro
             newTempReading = await tempUtils.getPoolTemp();
             csvFile = poolTemperatureReadingsFile;
         }
-    } catch (err) {
+    } catch (err: any) {
         logger.error(`Could not get temperature reading because of : ${err.message}`);
         return;
     }
 
     try {
         await fs.promises.appendFile(csvFile, `${new Date().getTime()},${newTempReading}\n`);
-    } catch (err) {
+    } catch (err: any) {
         logger.error(`Could not write new temperature reading because of : ${err.message}`);
         return;
     }
@@ -45,6 +45,7 @@ const _getAndWriteNewTemperatureSample = async function(forOutside: boolean):Pro
 
 export const start = () => {
     new CronJob(
+        // @ts-ignore
         config.samplingIntervalCron,
         async () => {
             await getAndWriteNewPoolTemperatureSample();

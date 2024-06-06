@@ -4,25 +4,59 @@ self.addEventListener('sync', event => {
 	}
 });
 
-function wasNotificationShownToday() {
-	const lastNotificationTime = localStorage.getItem('lastNotificationTime');
-	if (!lastNotificationTime) return false;
-
-	const lastDate = new Date(parseInt(lastNotificationTime, 10));
-	const today = new Date();
-
-	return lastDate.toDateString() === today.toDateString();
+function openDatabase() {
+	return new Promise((resolve, reject) => {
+		const request = indexedDB.open('notification-store', 1);
+		request.onupgradeneeded = event => {
+			const db = event.target.result;
+			db.createObjectStore('notifications', { keyPath: 'id' });
+		};
+		request.onsuccess = event => {
+			resolve(event.target.result);
+		};
+		request.onerror = event => {
+			reject(event.target.error);
+		};
+	});
 }
 
-function updateLastNotificationTime() {
+async function wasNotificationShownToday(poolTempNow) {
+	const db = await openDatabase();
+	return new Promise((resolve, reject) => {
+		const transaction = db.transaction(['notifications'], 'readonly');
+		const store = transaction.objectStore('notifications');
+		const request = store.get('lastNotificationTime');
+
+		request.onsuccess = event => {
+			const lastNotificationTime = event.target.result?.timestamp;
+			if (!lastNotificationTime) return resolve(false);
+
+			const lastDate = new Date(lastNotificationTime);
+			const today = new Date();
+
+			resolve(lastDate.toDateString() === today.toDateString());
+		};
+
+		request.onerror = event => {
+			reject(event.target.error);
+		};
+	});
+}
+
+async function updateLastNotificationTime() {
+	const db = await openDatabase();
 	const now = new Date().getTime();
-	localStorage.setItem('lastNotificationTime', now.toString());
+	return new Promise((resolve, reject) => {
+		const transaction = db.transaction(['notifications'], 'readwrite');
+		const store = transaction.objectStore('notifications');
+		const request = store.put({ id: 'lastNotificationTime', timestamp: now });
+
+		request.onsuccess = () => resolve();
+		request.onerror = event => reject(event.target.error);
+	});
 }
 
 async function syncDataAndNotify() {
-	// TODO : ...
-	if (false && wasNotificationShownToday()) return;
-
 	const poolTempResponse = await fetch('/data/pool');
 	const poolTemp = await poolTempResponse.json();
 	const poolTempNow = poolTemp[poolTemp.length - 1][1];
@@ -35,17 +69,17 @@ async function syncDataAndNotify() {
 }
 
 async function showNotification(poolTempNow) {
-	// if (wasNotificationShownToday()) return;
+	if (await wasNotificationShownToday(poolTempNow)) return;
 
 	const options = {
 		body: `La piscine est à ${poolTempNow}`,
 		icon: '/img/favicon.ico',
-		// badge: '/path/to/badge.png', // Optional
+		badge: '/img/favicon.ico',
 	};
 
-	updateLastNotificationTime();
 
 	await self.registration.showNotification('PiPool', options);
+	await updateLastNotificationTime();
 }
 
 self.addEventListener('notificationclick', event => {

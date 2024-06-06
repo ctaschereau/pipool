@@ -1,3 +1,20 @@
+function updateTempTitle(poolTempNow) {
+	const dateInMyFormat = new Date().toLocaleDateString('fr-CA', {
+		month: 'long',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	});
+	const el = document.getElementById('result_container');
+	el.innerText = `Température en date du ${dateInMyFormat} : ${poolTempNow} °C`;
+}
+
+const convertTemperatureReadingsToArrayOfArrays = function(readings) {
+	return readings.map(reading => {
+		return [reading.dateInMs, reading.temp];
+	});
+}
+
 const getTemp = async function(rangeToDisplay) {
 	let endOfURL = '';
 	if (rangeToDisplay) {
@@ -7,16 +24,9 @@ const getTemp = async function(rangeToDisplay) {
 	const poolTemp = await poolTempResponse.json();
 	const outsideTempResponse = await fetch('/data/outside' + endOfURL);
 	const outsideTemp = await outsideTempResponse.json();
-	const poolTempNow = poolTemp[poolTemp.length - 1][1];
+	const poolTempNow = poolTemp[poolTemp.length - 1].temp;
 
-	const dateInMyFormat = new Date().toLocaleDateString('fr-CA', {
-		month: 'long',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
-	const el = document.getElementById('result_container');
-	el.innerText = `Température en date du ${dateInMyFormat} : ${poolTempNow} °C`;
+	updateTempTitle(poolTempNow);
 
 	// https://blog.emilecantin.com/web/highcharts/2014/10/26/highcharts-datetime-series.html
 	Highcharts.setOptions({
@@ -55,34 +65,29 @@ const getTemp = async function(rangeToDisplay) {
 		},
 		series: [{
 			name: 'Pool data',
-			data: poolTemp,
+			data: convertTemperatureReadingsToArrayOfArrays(poolTemp),
 		}, {
 			name: 'Outside data',
-			data: outsideTemp,
+			data:  convertTemperatureReadingsToArrayOfArrays(outsideTemp),
 			color: '#b6b7c1',
 		}]
 	};
 
 	Highcharts.chart('chart_container', chartConfig);
-
-	/*
-	// Default zoom
-	const dateOffset = (24 * 60 * 60 * 1000) * 6; // nb of days
-	let myDate = new Date();
-	myDate.setTime(myDate.getTime() - dateOffset);
-	chart.xAxis[0].setExtremes(myDate.getTime(), new Date().getTime());
-	*/
 };
-getTemp().then(() => {}).catch(console.error);
+
+const getTempUsingSelectedValue = function() {
+	const selectedRadio = document.querySelector('input[name="range_to_display"]:checked');
+	const selectedValue = selectedRadio ? selectedRadio.value : null;
+	getTemp(selectedValue).then(() => {}).catch(console.error);
+};
+
+getTempUsingSelectedValue()
 setInterval(() => {
-	getTemp().then(() => {}).catch(console.error);
+	getTempUsingSelectedValue()
 }, 60 * 1000);
 
 const radios = document.getElementsByName('range_to_display');
-for(radio in radios) {
-    radios[radio].onclick = function() {
-		getTemp(this.value).then(() => {
-			console.log('all done');
-		}).catch(console.error);
-    }
+for(let radio in radios) {
+    radios[radio].onclick = getTempUsingSelectedValue;
 }
