@@ -28,13 +28,23 @@ async function wasNotificationShownToday(poolTempNow) {
 		const request = store.get('lastNotificationTime');
 
 		request.onsuccess = event => {
+			const lastNotification = event.target.result;
+			if (!lastNotification) {
+				resolve(false);
+				return;
+			}
 			const lastNotificationTime = event.target.result?.timestamp;
-			if (!lastNotificationTime) return resolve(false);
+			const lastTemp = event.target.result?.temp;
+
+			// If the temp did not even go up by 1 degree, we don't want to spam the user
+			if (Math.floor(lastTemp) >= Math.floor(poolTempNow)) {
+				resolve(true);
+				return;
+			}
 
 			const lastDate = new Date(lastNotificationTime);
 			const today = new Date();
-
-			resolve(lastDate.toDateString() === today.toDateString());
+			resolve(lastDate.getDay() === today.getDay());
 		};
 
 		request.onerror = event => {
@@ -43,13 +53,17 @@ async function wasNotificationShownToday(poolTempNow) {
 	});
 }
 
-async function updateLastNotificationTime() {
+async function updateLastNotificationTime(poolTempNow) {
 	const db = await openDatabase();
 	const now = new Date().getTime();
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(['notifications'], 'readwrite');
 		const store = transaction.objectStore('notifications');
-		const request = store.put({ id: 'lastNotificationTime', timestamp: now });
+		const request = store.put({
+			id: 'lastNotificationTime',
+			timestamp: now,
+			temp: poolTempNow,
+		});
 
 		request.onsuccess = () => resolve();
 		request.onerror = event => reject(event.target.error);
@@ -57,6 +71,11 @@ async function updateLastNotificationTime() {
 }
 
 async function syncDataAndNotify() {
+	// Quit early if NOT between 9am and 10pm
+	const now = new Date();
+	const hour = now.getHours();
+	if (hour < 9 || hour >= 22) return;
+
 	const poolTempResponse = await fetch('/data/pool?rangeToDisplay=4hours');
 	const poolTemp = await poolTempResponse.json();
 	const poolTempNow = poolTemp[poolTemp.length - 1].temp;
@@ -69,7 +88,7 @@ async function syncDataAndNotify() {
 }
 
 async function showNotification(poolTempNow) {
-	if (await wasNotificationShownToday(poolTempNow)) return;
+	if (false && await wasNotificationShownToday(poolTempNow)) return;
 
 	const options = {
 		body: `La piscine est à ${poolTempNow}`,
@@ -79,7 +98,7 @@ async function showNotification(poolTempNow) {
 
 
 	await self.registration.showNotification('PiPool', options);
-	await updateLastNotificationTime();
+	await updateLastNotificationTime(poolTempNow);
 }
 
 self.addEventListener('notificationclick', event => {

@@ -63,6 +63,9 @@ const getTemp = async function(rangeToDisplay) {
 		legend: {
 			enabled: false,
 		},
+		accessibility: {
+			enabled: false,
+		},
 		series: [{
 			name: 'Pool data',
 			data: convertTemperatureReadingsToArrayOfArrays(poolTemp),

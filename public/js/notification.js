@@ -20,6 +20,6 @@ const getNotifications = async function() {
 
 		setInterval(() => {
 			registration.sync.register('sync-data');
-		}, 60 * 1000);
+		}, 15 * 60 * 1000);
 	}
 }
