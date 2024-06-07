@@ -5,9 +5,11 @@ const poolTemperatureReadingsFile = `poolTemp_${new Date().getFullYear()}.csv`;
 const outsideTemperatureReadingsFile = `outsideTemp_${new Date().getFullYear()}.csv`;
 
 type TemperatureReading = {
-	dateInMs: Number,
+	dateInMs: number,
 	temp: number,
 };
+
+type RangeToDisplay = '4hours' | '8hours' | '24hours' | '3days' | '7days' | 'all';
 
 const readCsvToJSON = async (file: string): Promise<Array<TemperatureReading>> => {
 	const data = await fs.promises.readFile(file, 'utf8');
@@ -20,24 +22,32 @@ const readCsvToJSON = async (file: string): Promise<Array<TemperatureReading>> =
 	})
 }
 
-const filterData = (data: Array<TemperatureReading>, rangeToDisplay: string): Array<TemperatureReading> => {
+const hourInMs = 60 * 60 * 1000;
+const filterData = (data: Array<TemperatureReading>, rangeToDisplay: RangeToDisplay): Array<TemperatureReading> => {
 	return data.filter((x: TemperatureReading) => {
-		if (rangeToDisplay.includes('hours')) {
-			// filter = {date: {$gte: subHours(new Date(), Number(rangeToDisplay.replace('hours', '')))}};
-			return x;
-		} else if (rangeToDisplay.includes('days')) {
-			// filter = {date: {$gte: subHours(new Date(), Number(rangeToDisplay.replace('days', '')) * 24)}};
-			return x;
-		} else {
-			// filter = {}
-			return x;
+		const readingDate = new Date(x.dateInMs);
+		const now = new Date();
+		const diff = now.getTime() - readingDate.getTime();
+		switch (rangeToDisplay) {
+			case '4hours':
+				return diff <= 4 * hourInMs;
+			case '8hours':
+				return diff <= 8 * hourInMs;
+			case '24hours':
+				return diff <= 24 * hourInMs;
+			case '3days':
+				return diff <= 3 * 24 * hourInMs;
+			case '7days':
+				return diff <= 7 * 24 * hourInMs;
+			default:
+				return true;
 		}
 	});
 };
 
 
 
-const getAndReturnTemperatureReadings = async (forOutside: boolean, res: any, rangeToDisplay?: string) => {
+const getAndReturnTemperatureReadings = async (forOutside: boolean, res: any, rangeToDisplay?: RangeToDisplay) => {
 	const file = forOutside ? outsideTemperatureReadingsFile : poolTemperatureReadingsFile;
 	let data = await readCsvToJSON(file);
 	if (rangeToDisplay)	{
@@ -47,13 +57,24 @@ const getAndReturnTemperatureReadings = async (forOutside: boolean, res: any, ra
 	res.json(data);
 };
 
+function getRangeToDisplay(req: Request) {
+	let rangeToDisplay: RangeToDisplay | undefined;
+	const querystringRangeToDisplay = req.query["rangeToDisplay"];
+
+	if (typeof querystringRangeToDisplay === 'string' && ['4hours', '8hours', '24hours', '3days', '7days', 'all'].includes(querystringRangeToDisplay)) {
+		rangeToDisplay = querystringRangeToDisplay as RangeToDisplay;
+	}
+	return rangeToDisplay;
+}
+
 const initPoolAPI = (app: Express) => {
-	app.get("/data/outside", async (_req: Request, res: Response) => {
-		await getAndReturnTemperatureReadings(true, res);
+	app.get("/data/outside", async (req: Request, res: Response) => {
+		const rangeToDisplay: RangeToDisplay | undefined = getRangeToDisplay(req);
+		await getAndReturnTemperatureReadings(true, res, rangeToDisplay);
 	});
 
 	app.get("/data/pool", async (req: Request, res: Response) => {
-		const rangeToDisplay: string | undefined = req.query["rangeToDisplay"] ? (String) (req.query["rangeToDisplay"]) : undefined;
+		const rangeToDisplay: RangeToDisplay | undefined = getRangeToDisplay(req);
 		await getAndReturnTemperatureReadings(false, res, rangeToDisplay);
 	});
 

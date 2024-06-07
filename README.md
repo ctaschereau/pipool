@@ -13,7 +13,7 @@ Simple projet to display the temperature of a pool using one/two raspberry pi(es
 - Step 2 is accomplished by installing python3-flask and then running the script pi1_install.sh
 - Step 3 is left up to the reader to figure out
 - Steps 4 & 5 are done by running this :
-`deno run --allow-net --allow-write --allow-read --allow-plugin --unstable index.ts`
+`bun index.ts`
   or by setuping a service like this (for systemd) (in a file like /etc/systemd/system/pipool.service) : 
   ```
     [Unit]
@@ -31,10 +31,16 @@ Simple projet to display the temperature of a pool using one/two raspberry pi(es
 
     [Install]
     WantedBy=multi-user.target```
+  
+## Notes
+
+Let's say that the server's user is "pi" and the server is at 192:168.1.135, then to ssh into the server, you would do :
+`ssh pi@192.168.1.135`
+and to copy over all the server's csv files, you would do (only in bash for some weird reason, does not work in zsh...) :
+`scp pi@192.168.1.135:/home/pi/pipool/*.csv .`
 
 ## Todos
-- Add script to create and manage service for Deno webserver
+- Add script to create and manage service
 - Use a real way of templating stuff for the client-side (ex: Vue.js or React.js)
 - Use a nice client-side lib
-- Manage the fact that the _local.ts_ file could not be there
 - Better logging (use nice datetime format) 
