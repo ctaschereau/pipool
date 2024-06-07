@@ -107,7 +107,7 @@ async function shouldNotificationGetShown(poolTempNow) {
 	const today = new Date();
 	// if the days are different, we want to show the notification
 	if (lastDate.getDate() !== today.getDate()) {
-		return false;
+		return true;
 	}
 
 	// If the temp did not even go up by 0.5 degree, we don't want to spam the user

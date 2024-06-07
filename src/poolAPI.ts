@@ -25,10 +25,10 @@ const readCsvToJSON = async (file: string): Promise<Array<TemperatureReading>> =
 
 const hourInMs = 60 * 60 * 1000;
 const filterData = (data: Array<TemperatureReading>, rangeToDisplay: RangeToDisplay): Array<TemperatureReading> => {
-	return data.filter((x: TemperatureReading) => {
-		const readingDate = new Date(x.dateInMs);
-		const now = new Date();
-		const diff = now.getTime() - readingDate.getTime();
+	const now = new Date();
+	const nowInMs = now.getTime();
+	return data.filter((reading: TemperatureReading) => {
+		const diff = nowInMs - reading.dateInMs;
 		switch (rangeToDisplay) {
 			case '4hours':
 				return diff <= 4 * hourInMs;
