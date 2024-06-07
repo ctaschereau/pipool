@@ -19,7 +19,8 @@ const getNotifications = async function() {
 		registration.sync.register('sync-data');
 
 		setInterval(() => {
+			console.log('calling registration.sync.register()')
 			registration.sync.register('sync-data');
-		}, 15 * 60 * 1000);
+		}, window.notificationIntervalInMs);
 	}
 }

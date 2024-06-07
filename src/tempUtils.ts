@@ -3,8 +3,11 @@ import config from 'config';
 export default class TempUtils {
 	static async getPoolTemp(): Promise<number> {
 		const response = await fetch(config.tempServerUrl);
-		const data = await response.json();
-		return data.temp;
+		const data: any = await response.json();
+		if (data.temp && typeof data.temp === 'number'){
+			return data.temp;
+		}
+		throw new Error('No temp today!');
 	}
 
 	static async getOutsideTemp(): Promise<number> {

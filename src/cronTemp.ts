@@ -45,7 +45,6 @@ const _getAndWriteNewTemperatureSample = async function(forOutside: boolean):Pro
 
 export const start = () => {
     new CronJob(
-        // @ts-ignore
         config.samplingIntervalCron,
         async () => {
             await getAndWriteNewPoolTemperatureSample();

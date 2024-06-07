@@ -3,4 +3,5 @@
   "tempServerUrl": "http://192.168.1.140:5000/",
   "cityIDForWeatherService": "qc-136",
   "samplingIntervalCron": "0 */10 * * * *",
+  "notificationIntervalInMs": 600000
 }

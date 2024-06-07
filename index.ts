@@ -3,6 +3,7 @@ import os from 'os';
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
+import path from 'path';
 import express, {type Request, type Response} from 'express';
 import logger from './src/basicLogger.ts';
 import { start as startCron } from './src/cronTemp.ts';
@@ -11,6 +12,10 @@ import initPoolAPI from './src/poolAPI.ts';
 startCron();
 
 const app = express();
+
+app.set('view engine', 'ejs');
+
+app.set('views', path.join(__dirname, 'views'));
 
 initPoolAPI(app);
 
@@ -22,7 +27,6 @@ app.use((err: any, _req: Request, res: Response, _next: Function) => {
 	res.json({ message: "Internal Server Error : " + message, status, stack })
 });
 
-// @ts-ignore
 const port: number = config.port;
 
 const hostname = os.hostname().replace('.local', '');

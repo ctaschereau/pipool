@@ -3,7 +3,7 @@
 <head>
 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<link href="/img/favicon.ico" rel="icon" />
-	<link rel="stylesheet" href="style/style.css">
+	<link rel="stylesheet" href="/style/style.css" type="text/css" />
 	<title>PiPool</title>
 </head>
 <body>
@@ -27,5 +27,9 @@
 </div>
 <script src="/js/main.js"></script>
 <script src="/js/notification.js"></script>
+<script>
+	// Passing configs client-side LIKE A PRO :P
+	window.notificationIntervalInMs = parseInt('<%= notificationIntervalInMs %>');
+</script>
 </body>
 </html>
