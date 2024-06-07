@@ -4,6 +4,11 @@ self.addEventListener('sync', event => {
 	}
 });
 
+self.addEventListener('notificationclick', event => {
+	event.notification.close();
+	// event.waitUntil(clients.openWindow('/'));
+});
+
 function openDatabase() {
 	return new Promise((resolve, reject) => {
 		const request = indexedDB.open('notification-store', 1);
@@ -20,7 +25,7 @@ function openDatabase() {
 	});
 }
 
-async function wasNotificationShownToday(poolTempNow) {
+async function getLastNotificationFromStore() {
 	const db = await openDatabase();
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(['notifications'], 'readonly');
@@ -28,23 +33,7 @@ async function wasNotificationShownToday(poolTempNow) {
 		const request = store.get('lastNotificationTime');
 
 		request.onsuccess = event => {
-			const lastNotification = event.target.result;
-			if (!lastNotification) {
-				resolve(false);
-				return;
-			}
-			const lastNotificationTime = event.target.result?.timestamp;
-			const lastTemp = event.target.result?.temp;
-
-			// If the temp did not even go up by 1 degree, we don't want to spam the user
-			if (Math.floor(lastTemp) >= Math.floor(poolTempNow)) {
-				resolve(true);
-				return;
-			}
-
-			const lastDate = new Date(lastNotificationTime);
-			const today = new Date();
-			resolve(lastDate.getDay() === today.getDay());
+			resolve(event.target.result);
 		};
 
 		request.onerror = event => {
@@ -70,38 +59,67 @@ async function updateLastNotificationTime(poolTempNow) {
 	});
 }
 
-async function syncDataAndNotify() {
-	// Quit early if NOT between 9am and 10pm
-	const now = new Date();
-	const hour = now.getHours();
-	if (hour < 9 || hour >= 22) return;
-
-	const poolTempResponse = await fetch('/data/pool?rangeToDisplay=4hours');
-	const poolTemp = await poolTempResponse.json();
-	const poolTempNow = poolTemp[poolTemp.length - 1].temp;
-
-	const threshold = 22;
-
-	if (poolTempNow > threshold) {
-		await showNotification(poolTempNow);
-	}
-}
-
 async function showNotification(poolTempNow) {
-	if (false && await wasNotificationShownToday(poolTempNow)) return;
-
 	const options = {
 		body: `La piscine est à ${poolTempNow}`,
 		icon: '/img/favicon.ico',
 		badge: '/img/favicon.ico',
 	};
 
-
 	await self.registration.showNotification('PiPool', options);
 	await updateLastNotificationTime(poolTempNow);
 }
 
-self.addEventListener('notificationclick', event => {
-	event.notification.close();
-	event.waitUntil(clients.openWindow('/'));
-});
+async function shouldNotificationGetShown(poolTempNow) {
+	/*
+	// If the current url contains "laptop0072", then we are on dev, so we ALWAYS show the notifications
+	if (self.location.href.includes('laptop0072')) {
+		return true;
+	}
+	*/
+
+	// Time check
+	const minHour = self.location.href.includes('laptop0072') ? 7 : 9;
+	const maxHour = 22;
+	const now = new Date();
+	const hour = now.getHours();
+	if (hour < minHour || hour >= maxHour) {
+		return false;
+	}
+
+	const thresholdToReceiveNotifications = 22;
+
+	// Too cold to even bother
+	if (poolTempNow <= thresholdToReceiveNotifications) {
+		return false;
+	}
+
+	const lastNotification = await getLastNotificationFromStore();
+	// When the user has never received a notification, we want to show one
+	if (!lastNotification) {
+		return true;
+	}
+
+	const lastNotificationTime = lastNotification.timestamp;
+	const lastTemp = lastNotification.temp;
+
+	const lastDate = new Date(lastNotificationTime);
+	const today = new Date();
+	// if the days are different, we want to show the notification
+	if (lastDate.getDate() !== today.getDate()) {
+		return false;
+	}
+
+	// If the temp did not even go up by 0.5 degree, we don't want to spam the user
+	return poolTempNow - lastTemp >= 0.5;
+}
+
+async function syncDataAndNotify() {
+	const poolTempResponse = await fetch('/data/pool?rangeToDisplay=4hours');
+	const poolTemp = await poolTempResponse.json();
+	const poolTempNow = poolTemp[poolTemp.length - 1].temp;
+
+	if (await shouldNotificationGetShown(poolTempNow)) {
+		await showNotification(poolTempNow);
+	}
+}
