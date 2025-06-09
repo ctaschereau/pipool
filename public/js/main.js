@@ -28,13 +28,6 @@ const getTemp = async function(rangeToDisplay) {
 
 	updateTempTitle(poolTempNow);
 
-	// https://blog.emilecantin.com/web/highcharts/2014/10/26/highcharts-datetime-series.html
-	Highcharts.setOptions({
-		global: {
-			useUTC: false
-		}
-	});
-
 	const chartConfig = {
 		title: {
 			text: ''
@@ -73,7 +66,10 @@ const getTemp = async function(rangeToDisplay) {
 			name: 'Outside data',
 			data:  convertTemperatureReadingsToArrayOfArrays(outsideTemp),
 			color: '#b6b7c1',
-		}]
+		}],
+		time: {
+			timezone: 'America/Montreal',
+		},
 	};
 
 	Highcharts.chart('chart_container', chartConfig);
