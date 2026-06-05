@@ -1,6 +1,5 @@
 import express, {type Express, type Request, type Response} from 'express';
 import fs from 'fs';
-import config from "config";
 
 const poolTemperatureReadingsFile = `poolTemp_${new Date().getFullYear()}.csv`;
 const outsideTemperatureReadingsFile = `outsideTemp_${new Date().getFullYear()}.csv`;
@@ -82,7 +81,7 @@ const initPoolAPI = (app: Express) => {
 	app.use(express.static('public'));
 
 	app.get('/', (_req: Request, res) => {
-		res.render('index', { notificationIntervalInMs: config.notificationIntervalInMs });
+		res.render('index');
 	});
 };
 

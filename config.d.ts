@@ -5,7 +5,6 @@ declare module 'config' {
     tempServerUrl: string;
     cityIDForWeatherService: string;
     samplingIntervalCron: string;
-    notificationIntervalInMs: number;
   };
   export default value;
 }

@@ -5,8 +5,8 @@ config/local.json
 
 *.csv
 
-my_borealis_cert.cer
-my_borealis_key.key
+my_cert.cer
+my_key.key
 
 # Logs
 logs
