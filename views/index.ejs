@@ -1,29 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script src="https://code.highcharts.com/highcharts.js"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
 	<link href="/img/favicon.ico" rel="icon" />
 	<link rel="stylesheet" href="/style/style.css" type="text/css" />
 	<title>PiPool</title>
 </head>
 <body>
-<h1>Température de ma piscine</h1>
-<div id="result_container"></div>
-<div id="chart_container"></div>
-<div>
-	<input type="radio" name="range_to_display" id="4hours" value="4hours" ><label for="4hours">4 heures</label>
-	<input type="radio" name="range_to_display" id="8hours" value="8hours" ><label for="8hours">8 heures</label>
-	<input type="radio" name="range_to_display" id="24hours" value="24hours" ><label for="24hours">24 heures</label>
-	<input type="radio" name="range_to_display" id="3days" value="3days" checked><label for="3days">3 jours</label>
-	<input type="radio" name="range_to_display" id="7days" value="7days" ><label for="7days">7 jours</label>
-	<input type="radio" name="range_to_display" id="all" value="all" ><label for="all">Tout</label>
-</div>
-<div>
-	<ul>
-		<li><a href="https://photos.app.goo.gl/Nd8hozb3a6pDXwYw5">Photos du setup</a></li>
-		<li><a href="https://thepihut.com/blogs/raspberry-pi-tutorials/18095732-sensors-temperature-with-the-1-wire-interface-and-the-ds18b20">Documentation que j'ai utilisé</a></li>
-	</ul>
-</div>
-<script src="/js/main.js"></script>
+	<div class="app">
+		<header class="header">
+			<div class="header-inner">
+				<div class="brand">
+					<div class="brand-icon" aria-hidden="true">💧</div>
+					<div>
+						<h1>PiPool</h1>
+						<p class="brand-tagline">Température de la piscine</p>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<main class="main">
+			<section class="metrics" aria-label="Températures actuelles">
+				<article class="metric-card metric-card--pool">
+					<div class="metric-card-header">
+						<span class="metric-dot metric-dot--pool"></span>
+						<span class="metric-label">Piscine</span>
+					</div>
+					<div class="metric-value-row">
+						<span class="metric-value" id="pool_temp_value">—</span>
+						<span class="metric-unit">°C</span>
+					</div>
+				</article>
+
+				<a
+					href="<%= weatherPageUrl %>"
+					class="metric-card metric-card--outside metric-card--link"
+					target="_blank"
+					rel="noopener noreferrer"
+					title="Voir la météo officielle d'Environnement Canada"
+				>
+					<div class="metric-card-header">
+						<span class="metric-dot metric-dot--outside"></span>
+						<span class="metric-label">Extérieur</span>
+						<span class="metric-link-hint" aria-hidden="true">↗</span>
+					</div>
+					<div class="metric-value-row">
+						<span class="metric-value" id="outside_temp_value">—</span>
+						<span class="metric-unit">°C</span>
+					</div>
+				</a>
+			</section>
+
+			<p class="last-updated" id="result_container" aria-live="polite"></p>
+
+			<section class="chart-section">
+				<div class="chart-toolbar">
+					<h2 class="section-title">Historique</h2>
+					<div class="range-selector" role="radiogroup" aria-label="Période affichée">
+						<input type="radio" name="range_to_display" id="4hours" value="4hours">
+						<label for="4hours">4 h</label>
+						<input type="radio" name="range_to_display" id="8hours" value="8hours">
+						<label for="8hours">8 h</label>
+						<input type="radio" name="range_to_display" id="24hours" value="24hours">
+						<label for="24hours">24 h</label>
+						<input type="radio" name="range_to_display" id="3days" value="3days" checked>
+						<label for="3days">3 j</label>
+						<input type="radio" name="range_to_display" id="7days" value="7days">
+						<label for="7days">7 j</label>
+						<input type="radio" name="range_to_display" id="all" value="all">
+						<label for="all">Tout</label>
+					</div>
+				</div>
+
+				<div class="chart-card">
+					<div id="chart_container" class="chart-container"></div>
+				</div>
+
+				<div class="chart-legend">
+					<span class="legend-item">
+						<span class="legend-swatch legend-swatch--pool"></span>
+						Piscine
+					</span>
+					<span class="legend-item">
+						<span class="legend-swatch legend-swatch--outside"></span>
+						Extérieur
+					</span>
+					<span class="legend-item">
+						<span class="legend-swatch legend-swatch--target"></span>
+						Cible (23 °C)
+					</span>
+				</div>
+			</section>
+		</main>
+
+		<footer class="footer">
+			<nav class="footer-links" aria-label="Liens utiles">
+				<a href="https://photos.app.goo.gl/Nd8hozb3a6pDXwYw5" target="_blank" rel="noopener noreferrer">
+					Photos du setup
+				</a>
+				<span class="footer-separator" aria-hidden="true"></span>
+				<a href="https://thepihut.com/blogs/raspberry-pi-tutorials/18095732-sensors-temperature-with-the-1-wire-interface-and-the-ds18b20" target="_blank" rel="noopener noreferrer">
+					Documentation capteur
+				</a>
+			</nav>
+		</footer>
+	</div>
+
+	<script src="/js/main.js"></script>
 </body>
 </html>

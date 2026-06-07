@@ -4,6 +4,7 @@ declare module 'config' {
     port: number;
     tempServerUrl: string;
     cityIDForWeatherService: string;
+    weatherPageUrl: string;
     samplingIntervalCron: string;
   };
   export default value;

@@ -1,3 +1,4 @@
+import config from 'config';
 import express, {type Express, type Request, type Response} from 'express';
 import fs from 'fs';
 
@@ -99,7 +100,7 @@ const initPoolAPI = (app: Express) => {
 	app.use(express.static('public'));
 
 	app.get('/', (_req: Request, res) => {
-		res.render('index');
+		res.render('index', { weatherPageUrl: config.weatherPageUrl });
 	});
 };
 
