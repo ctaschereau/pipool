@@ -9,6 +9,7 @@ import logger from './src/basicLogger.ts';
 import { start as startCron } from './src/cronTemp.ts';
 import initPoolAPI from './src/poolAPI.ts';
 
+logger.info(`Starting pipool (logLevel=${config.logLevel}, port=${config.port}, cron="${config.samplingIntervalCron}")`);
 startCron();
 
 const app = express();

@@ -74,6 +74,7 @@ const getTemp = async function(rangeToDisplay) {
 			},
 			gridLineColor: '#f1f5f9',
 			labels: {
+				format: '{value:.2f}',
 				style: {
 					color: '#64748b',
 					fontSize: '11px',
@@ -88,7 +89,6 @@ const getTemp = async function(rangeToDisplay) {
 			}],
 		},
 		tooltip: {
-			shared: true,
 			backgroundColor: '#ffffff',
 			borderColor: '#e2e8f0',
 			borderRadius: 8,
@@ -102,6 +102,7 @@ const getTemp = async function(rangeToDisplay) {
 				fontSize: '13px',
 			},
 			xDateFormat: '%d %b, %H:%M',
+			valueDecimals: 2,
 			valueSuffix: ' °C',
 		},
 		credits: {
@@ -118,29 +119,11 @@ const getTemp = async function(rangeToDisplay) {
 			data: convertTemperatureReadingsToArrayOfArrays(poolTemp),
 			color: POOL_COLOR,
 			lineWidth: 2.5,
-			marker: {
-				enabled: false,
-				states: {
-					hover: {
-						enabled: true,
-						radius: 4,
-					},
-				},
-			},
 		}, {
 			name: 'Extérieur',
 			data: convertTemperatureReadingsToArrayOfArrays(outsideTemp),
 			color: OUTSIDE_COLOR,
 			lineWidth: 2,
-			marker: {
-				enabled: false,
-				states: {
-					hover: {
-						enabled: true,
-						radius: 4,
-					},
-				},
-			},
 		}],
 		time: {
 			timezone: 'America/Montreal',

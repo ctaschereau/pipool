@@ -6,6 +6,7 @@ declare module 'config' {
     cityIDForWeatherService: string;
     weatherPageUrl: string;
     samplingIntervalCron: string;
+    logLevel: string;
   };
   export default value;
 }

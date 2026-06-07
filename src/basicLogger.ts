@@ -1,3 +1,4 @@
+import config from 'config';
 import winston from "winston";
 
 /*
@@ -7,7 +8,7 @@ const myFormatter = (logRecord: any) => {
 */
 
 const logger = winston.createLogger({
-	level: 'info',
+	level: config.logLevel,
 	format: winston.format.combine(
 		winston.format.timestamp({
 			format: 'YYYY-MM-DD HH:mm:ss'

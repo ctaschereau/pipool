@@ -3,5 +3,6 @@
   "tempServerUrl": "http://192.168.1.140:5000/",
   "cityIDForWeatherService": "qc-136",
   "weatherPageUrl": "https://meteo.gc.ca/fr/location/index.html?coords=45.4,-71.89",
-  "samplingIntervalCron": "0 */10 * * * *"
+  "samplingIntervalCron": "0 */10 * * * *",
+  "logLevel": "info"
 }
