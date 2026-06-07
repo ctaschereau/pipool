@@ -3,6 +3,8 @@ import fs from 'fs';
 
 const poolTemperatureReadingsFile = `poolTemp_${new Date().getFullYear()}.csv`;
 const outsideTemperatureReadingsFile = `outsideTemp_${new Date().getFullYear()}.csv`;
+const serverStartTime = Date.now();
+const STARTUP_PLACEHOLDER_TEMP = 15;
 
 type TemperatureReading = {
 	dateInMs: number,
@@ -12,7 +14,15 @@ type TemperatureReading = {
 type RangeToDisplay = '4hours' | '8hours' | '24hours' | '3days' | '7days' | 'all';
 
 const readCsvToJSON = async (file: string): Promise<Array<TemperatureReading>> => {
-	const data = await fs.promises.readFile(file, 'utf8');
+	let data: string;
+	try {
+		data = await fs.promises.readFile(file, 'utf8');
+	} catch (err: any) {
+		if (err.code === 'ENOENT') {
+			return [];
+		}
+		throw err;
+	}
 	return data.trim().split('\n').map((x: string) => {
 		const [date, temperature] = x.split(',');
 		return {
@@ -47,9 +57,17 @@ const filterData = (data: Array<TemperatureReading>, rangeToDisplay: RangeToDisp
 
 
 
+const getStartupPlaceholderReading = (): TemperatureReading => ({
+	dateInMs: serverStartTime,
+	temp: STARTUP_PLACEHOLDER_TEMP,
+});
+
 const getAndReturnTemperatureReadings = async (forOutside: boolean, res: any, rangeToDisplay?: RangeToDisplay) => {
 	const file = forOutside ? outsideTemperatureReadingsFile : poolTemperatureReadingsFile;
 	let data = await readCsvToJSON(file);
+	if (data.length === 0) {
+		data = [getStartupPlaceholderReading()];
+	}
 	if (rangeToDisplay)	{
 		data = filterData(data, rangeToDisplay);
 	}

@@ -21,7 +21,7 @@ initPoolAPI(app);
 
 app.use((err: any, _req: Request, res: Response, _next: Function) => {
 	const { message, status, stack } = err;
-	console.error(err.stack);
+	logger.error(err.stack ?? err.message ?? err);
 
 	res.status(500);
 	res.json({ message: "Internal Server Error : " + message, status, stack })
